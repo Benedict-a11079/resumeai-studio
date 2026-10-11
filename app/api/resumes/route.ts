@@ -1,0 +1,5 @@
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
+const payloadSchema=z.object({title:z.string().min(1).max(120),content:z.record(z.any())});
+export async function GET(){return NextResponse.json({message:'Resume persistence API is ready to connect to Supabase. Configure Supabase and enable authenticated storage before using this endpoint for personal data.',configured:Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL&&process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)});}
+export async function POST(req:Request){try{payloadSchema.parse(await req.json());if(!process.env.NEXT_PUBLIC_SUPABASE_URL||!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)return NextResponse.json({error:'Cloud saving is not configured. The starter currently saves drafts in this browser. Configure Supabase before using cloud storage.'},{status:503});return NextResponse.json({error:'Supabase authenticated persistence must be enabled before saving cloud resumes. Use the provided SQL migration and follow README setup.'},{status:501});}catch{return NextResponse.json({error:'Invalid resume payload.'},{status:400});}}
